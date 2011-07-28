@@ -36,7 +36,7 @@ CREATE  TABLE IF NOT EXISTS `FormRegistry` (
   PRIMARY KEY (`id`) ,
   INDEX `fk_FormRegistry_1` (`id` ASC) ,
   CONSTRAINT `fk_FormRegistry_1`
-    FOREIGN KEY (`id` )
+    FOREIGN KEY (`userid` )
     REFERENCES `user` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
