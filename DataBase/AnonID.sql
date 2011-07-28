@@ -2,9 +2,9 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL';
 
-DROP SCHEMA IF EXISTS `spectreID` ;
-CREATE SCHEMA IF NOT EXISTS `spectreID` DEFAULT CHARACTER SET latin1 ;
-USE `spectreID` ;
+DROP SCHEMA IF EXISTS `AnonID` ;
+CREATE SCHEMA IF NOT EXISTS `AnonID` DEFAULT CHARACTER SET latin1 ;
+USE `AnonID` ;
 
 -- -----------------------------------------------------
 -- Table `user`
@@ -186,10 +186,10 @@ DEFAULT CHARACTER SET = latin1;
 -- procedure ListUser
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `ListUser`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `ListUser`(IN user VARCHAR(24))
 BEGIN
 select 
@@ -207,10 +207,10 @@ DELIMITER ;
 -- procedure addUserAttribute
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `addUserAttribute`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `addUserAttribute`(
 IN in_user TEXT,
 IN in_name TEXT,
@@ -233,10 +233,10 @@ DELIMITER ;
 -- procedure approveRealm
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `approveRealm`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `approveRealm`(
 	IN in_user VARCHAR(96), 
 	IN in_url TEXT, 
@@ -281,10 +281,10 @@ DELIMITER ;
 -- function authIsExpired
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP function IF EXISTS `authIsExpired`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `authIsExpired`(
 in_date DATETIME,
 in_interval TIME 
@@ -303,10 +303,10 @@ DELIMITER ;
 -- function checkRelmStatus
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP function IF EXISTS `checkRelmStatus`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `checkRelmStatus`(
 in_authTok BIGINT,
 in_realm TEXT
@@ -331,10 +331,10 @@ DELIMITER ;
 -- procedure dblogin
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `dblogin`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `dblogin`(
 IN in_name VARCHAR(96),
 IN in_passwd VARCHAR(255)
@@ -375,10 +375,10 @@ DELIMITER ;
 -- procedure getUserAttribute
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `getUserAttribute`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getUserAttribute`(
 IN in_token BIGINT UNSIGNED,
 IN in_name TEXT
@@ -415,10 +415,10 @@ DELIMITER ;
 -- procedure getRealmAttrAuth
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `getRealmAttrAuth`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getRealmAttrAuth`(
 IN in_token	BIGINT UNSIGNED,
 IN in_realm TEXT
@@ -446,10 +446,10 @@ DELIMITER ;
 -- procedure getRealmInfo
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `getRealmInfo`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `getRealmInfo`(
 IN in_tok BIGINT UNSIGNED,
 IN in_realm TEXT
@@ -474,10 +474,10 @@ DELIMITER ;
 -- function hasUser
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP function IF EXISTS `hasUser`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `hasUser`(
 user VARCHAR(20),
 user VARCHAR(96)
@@ -507,10 +507,10 @@ DELIMITER ;
 -- function userExists
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP function IF EXISTS `userExists`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `userExists`(
 in_user VARCHAR(24)
 ) RETURNS tinyint(1)
@@ -530,10 +530,10 @@ DELIMITER ;
 -- procedure registerForm
 -- -----------------------------------------------------
 
-USE `spectreID`;
+USE `AnonID`;
 DROP procedure IF EXISTS `registerForm`;
 DELIMITER $$
-USE `spectreID`$$
+USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `registerForm`(
 IN in_token BIGINT unsigned,
 IN in_lifetime INT,
@@ -570,14 +570,14 @@ DELIMITER ;
 
 
 -- -----------------------------------------------------
--- function spectreActivateUser
+-- function AnonActivateUser
 -- -----------------------------------------------------
 
-USE `spectreID`;
-DROP function IF EXISTS `spectreActivateUser`;
+USE `AnonID`;
+DROP function IF EXISTS `AnonActivateUser`;
 DELIMITER $$
-USE `spectreID`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `spectreActivateUser`(
+USE `AnonID`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `AnonActivateUser`(
 user VARCHAR(8)
 ) RETURNS enum('OK','LOCKED') CHARSET latin1
 BEGIN
@@ -596,14 +596,14 @@ DELIMITER ;
 
 
 -- -----------------------------------------------------
--- function spectreAddUser
+-- function AnonAddUser
 -- -----------------------------------------------------
 
-USE `spectreID`;
-DROP function IF EXISTS `spectreAddUser`;
+USE `AnonID`;
+DROP function IF EXISTS `AnonAddUser`;
 DELIMITER $$
-USE `spectreID`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `spectreAddUser`(
+USE `AnonID`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `AnonAddUser`(
 user VARCHAR(8),
 passwd VARCHAR(255),
 duress VARCHAR(255)
@@ -633,14 +633,14 @@ DELIMITER ;
 
 
 -- -----------------------------------------------------
--- function spectreCheckPasswd
+-- function AnonCheckPasswd
 -- -----------------------------------------------------
 
-USE `spectreID`;
-DROP function IF EXISTS `spectreCheckPasswd`;
+USE `AnonID`;
+DROP function IF EXISTS `AnonCheckPasswd`;
 DELIMITER $$
-USE `spectreID`$$
-CREATE DEFINER=`root`@`localhost` FUNCTION `spectreCheckPasswd`(
+USE `AnonID`$$
+CREATE DEFINER=`root`@`localhost` FUNCTION `AnonCheckPasswd`(
 user VARCHAR(8),
 passwd VARCHAR(255)
 ) RETURNS enum('OK','DURESS','LOCKED','INACTIVE','NOMATCH') CHARSET latin1
