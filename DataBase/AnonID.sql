@@ -148,9 +148,9 @@ DROP TABLE IF EXISTS `authCookies` ;
 
 CREATE  TABLE IF NOT EXISTS `authCookies` (
   `id` BIGINT(19) UNSIGNED NOT NULL ,
-  `type` ENUM('NORMAL','DURESS') NOT NULL ,
+  `type` ENUM('NORMAL', 'DURESS', 'ADMIN') NOT NULL ,
   `userid` BIGINT(20) UNSIGNED NOT NULL ,
-  `created` DATETIME NOT NULL ,
+  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   `lifetime` TIME NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_authCookies_1` (`userid` ASC) ,
@@ -171,7 +171,7 @@ DROP TABLE IF EXISTS `shadow` ;
 CREATE  TABLE IF NOT EXISTS `shadow` (
   `uid` BIGINT(20) UNSIGNED NOT NULL ,
   `password` CHAR(41) NOT NULL ,
-  `type` ENUM('NORMAL','DURESS', 'ADMIN') NOT NULL ,
+  `type` ENUM('NORMAL', 'DURESS', 'ADMIN') NOT NULL ,
   INDEX `fk_shadow_1` (`uid` ASC) ,
   CONSTRAINT `fk_shadow_1`
     FOREIGN KEY (`uid` )
@@ -339,23 +339,23 @@ IN in_passwd VARCHAR(255)
 BEGIN
 	DECLARE token BIGINT UNSIGNED;
 	DECLARE uid BIGINT UNSIGNED;
-	DECLARE type enum('NORMAL','DURESS');
+	DECLARE type enum('NORMAL', 'DURESS', 'ADMIN');
 	DECLARE status enum('ACTIVE','LOCKED','INACTIVE');
 	DECLARE found int;
 
 	SELECT u.id,u.status,s.type INTO uid,status,type 
-		FROM user u INNER JOIN shadow s 
+		FROM users u INNER JOIN shadow s 
 		ON u.id = s.uid
 		WHERE u.name=in_name
 		AND password=PASSWORD(CONCAT(in_name, in_passwd));
 
-	IF (status = 'ACTIVE' && type = 'NORMAL' ) THEN
+	IF (status = 'ACTIVE') THEN
 		set found = 1;
 		WHILE found > 0 DO
 			select (FLOOR(1 + (RAND() * 2147483646))) into token;
 			select count(id) from authCookies where id = token into found;
 		END WHILE;
-		INSERT INTO authCookies (id, userid, type, lastSeen)
+		INSERT INTO authCookies (id, userid, type, lifetime)
 			VALUES (token, uid, type, NOW());
 		SELECT token,type;
 	ELSE
