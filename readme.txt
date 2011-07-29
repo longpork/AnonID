@@ -9,6 +9,8 @@ Proposed Features:
 
 Strong control over User Attributes
 Ability to import/export a user profile
+Highly Resistant to data compromise via SQL injection
+
 
 Platform:
 
@@ -16,6 +18,8 @@ Java Servlet 2.5
 JSP/JSTL
 Mysql
 
+
 Current Work:
 
 Importing/updating Database Schema and procedures. See DataBase/readme.txt
+
