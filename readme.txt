@@ -10,7 +10,7 @@ Proposed Features:
 Strong control over User Attributes
 Ability to import/export a user profile
 Highly Resistant to data compromise via SQL injection
-
+Designed to work as a Tor Location Hidden Service safely
 
 Platform:
 
