@@ -7,11 +7,11 @@ CREATE SCHEMA IF NOT EXISTS `AnonID` DEFAULT CHARACTER SET latin1 ;
 USE `AnonID` ;
 
 -- -----------------------------------------------------
--- Table `user`
+-- Table `users`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `user` ;
+DROP TABLE IF EXISTS `users` ;
 
-CREATE  TABLE IF NOT EXISTS `user` (
+CREATE  TABLE IF NOT EXISTS `users` (
   `id` BIGINT(20) UNSIGNED NOT NULL ,
   `name` VARCHAR(96) NOT NULL ,
   `status` ENUM('ACTIVE','DISABLED') NOT NULL ,
@@ -30,14 +30,14 @@ DROP TABLE IF EXISTS `FormRegistry` ;
 CREATE  TABLE IF NOT EXISTS `FormRegistry` (
   `id` BIGINT(20) UNSIGNED NOT NULL ,
   `userid` BIGINT(20) UNSIGNED NOT NULL ,
-  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP ,
-  `expires` TIMESTAMP NOT NULL DEFAULT '0000-00-00 00:00:00' ,
+  `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `expires` TIMESTAMP NOT NULL DEFAULT '1970-01-01 00:00:01' ,
   `class` TEXT NOT NULL ,
   PRIMARY KEY (`id`) ,
   INDEX `fk_FormRegistry_1` (`id` ASC) ,
   CONSTRAINT `fk_FormRegistry_1`
-    FOREIGN KEY (`userid` )
-    REFERENCES `user` (`id` )
+    FOREIGN KEY (`id` )
+    REFERENCES `users` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -60,7 +60,7 @@ CREATE  TABLE IF NOT EXISTS `realms` (
   INDEX `fk_realms_1` (`userid` ASC) ,
   CONSTRAINT `fk_realms_1`
     FOREIGN KEY (`userid` )
-    REFERENCES `user` (`id` )
+    REFERENCES `users` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -84,7 +84,7 @@ CREATE  TABLE IF NOT EXISTS `userAttributes` (
   INDEX `fk_userAttributes_1` (`origin` ASC) ,
   CONSTRAINT `fk_peronaAttributes_1`
     FOREIGN KEY (`userid` )
-    REFERENCES `user` (`id` )
+    REFERENCES `users` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_userAttributes_1`
@@ -156,7 +156,7 @@ CREATE  TABLE IF NOT EXISTS `authCookies` (
   INDEX `fk_authCookies_1` (`userid` ASC) ,
   CONSTRAINT `fk_authCookies_1`
     FOREIGN KEY (`userid` )
-    REFERENCES `user` (`id` )
+    REFERENCES `users` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -171,11 +171,11 @@ DROP TABLE IF EXISTS `shadow` ;
 CREATE  TABLE IF NOT EXISTS `shadow` (
   `uid` BIGINT(20) UNSIGNED NOT NULL ,
   `password` CHAR(41) NOT NULL ,
-  `type` ENUM('NORMAL','DURESS') NOT NULL ,
+  `type` ENUM('NORMAL','DURESS', 'ADMIN') NOT NULL ,
   INDEX `fk_shadow_1` (`uid` ASC) ,
   CONSTRAINT `fk_shadow_1`
     FOREIGN KEY (`uid` )
-    REFERENCES `user` (`id` )
+    REFERENCES `users` (`id` )
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
@@ -192,11 +192,7 @@ DELIMITER $$
 USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `ListUser`(IN user VARCHAR(24))
 BEGIN
-select 
-	name as user from user 
-	inner join users 
-	on user.uid=users.id 
-	where users.userName = user; 
+select name as user from users where users.name = user; 
 END$$
 
 $$
@@ -220,7 +216,7 @@ IN in_relm TEXT
 BEGIN
 declare pid BIGINT;
 declare originid BIGINT;
-select id into pid from user where name = in_user;
+select id into pid from users where name = in_user;
 select id into originid from relms where name = in_relm;
 INSERT into userAttributes (userid, name, type, origin) values (pid, in_name, in_type, originid);
 END$$
@@ -250,13 +246,14 @@ BEGIN
 	DECLARE updated INT;
 
 	# Check for realm
-	SELECT count(p.id) into idexists from realms r inner join user p
-		ON r.userid = p.id
-		WHERE r.url = in_url AND p.name = in_user;
+	SELECT count(u.id) into idexists 
+		FROM realms r inner join user u
+			ON r.userid = u.id
+		WHERE r.url = in_url AND u.name = in_user;
 		
 	IF idexists < 1 THEN
 		# Add it
-		SELECT id into pid from user WHERE name = in_user;
+		SELECT id into pid from users WHERE name = in_user;
 		SET idexists = 1;
 		WHILE idexists > 0 DO
 			SELECT (FLOOR(1 + (RAND() * 2147483646))) into randID;
@@ -266,10 +263,10 @@ BEGIN
 			VALUES (randID, pid, in_url,NOW(), in_expires);
 	ELSE
 		#update it
-		UPDATE  realms r inner join user p
-			ON r.userid = p.id
+		UPDATE  realms r inner join user u
+			ON r.userid = u.id
 			SET r.expires = in_expires
-			WHERE r.url = in_url AND p.name = in_user;		
+			WHERE r.url = in_url AND u.name = in_user;		
 	END IF;
 END$$
 
@@ -346,10 +343,10 @@ BEGIN
 	DECLARE status enum('ACTIVE','LOCKED','INACTIVE');
 	DECLARE found int;
 
-	SELECT p.id,p.status,s.type INTO uid,status,type 
-		FROM user p INNER JOIN shadow s 
-		ON p.id = s.uid
-		WHERE p.name=in_name
+	SELECT u.id,u.status,s.type INTO uid,status,type 
+		FROM user u INNER JOIN shadow s 
+		ON u.id = s.uid
+		WHERE u.name=in_name
 		AND password=PASSWORD(CONCAT(in_name, in_passwd));
 
 	IF (status = 'ACTIVE' && type = 'NORMAL' ) THEN
@@ -479,19 +476,15 @@ DROP function IF EXISTS `hasUser`;
 DELIMITER $$
 USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` FUNCTION `hasUser`(
-user VARCHAR(20),
 user VARCHAR(96)
 ) RETURNS tinyint(1)
 BEGIN
 	DECLARE count INT;
-	select
-		count(name) as count from user 
-		inner join users 
-			on user.uid=users.id 
-		where users.userName = user
-		AND user.status = 'ACTIVE' 
-		AND user.name = user 
-		into count; 
+	SELECT count(name) AS count FROM users
+		WHERE users.userName = user
+		AND users.status = 'ACTIVE' 
+		AND users.name = user 
+		INTO count; 
 	CASE
 		WHEN count = 1 THEN return 1;
 	ELSE
@@ -516,7 +509,7 @@ in_user VARCHAR(24)
 ) RETURNS tinyint(1)
 BEGIN
 	DECLARE res int;
-	select count(name) into res from user 
+	select count(name) into res from users 
 		WHERE name = in_user 
 		AND status = 'ACTIVE';
 	return res;
