@@ -21,3 +21,6 @@ Function/Procedure Reference
 
 TODO
 
+* Bring back admin pw type, but only support its use when admin functions are called for
+* functions should always make sure that the proper type of cookie is passed.
+* Current work authCookieIsValid and setPassword 
