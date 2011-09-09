@@ -8,8 +8,8 @@ use AnonID;
 insert into users (id, name, status) values (0, 'admin', 'ACTIVE');
 
 insert into shadow (uid, salt, password, type) 
-	values (0, 'gtf0n00b', PASSWORD(CONCAT('admin','admin')), 'ADMIN');
+	values (0, 'gtf0n00b', PASSWORD(CONCAT('gtf0n00b','admin')), 'ADMIN');
 insert into shadow (uid, salt, password, type) 
-	values (0, 'gtf1n00b', PASSWORD(CONCAT('admin','norm')), 'NORMAL');
+	values (0, 'gtf1n00b', PASSWORD(CONCAT('gtf1n00b','login')), 'LOGIN');
 insert into shadow (uid, salt, password, type) 
-	values (0, 'gtf2n00b', PASSWORD(CONCAT('admin','duress')), 'DURESS');
+	values (0, 'gtf2n00b', PASSWORD(CONCAT('gtf2n00b','duress')), 'DURESS');

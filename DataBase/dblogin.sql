@@ -13,11 +13,11 @@ IN in_passwd VARCHAR(255)
 BEGIN
 	DECLARE token BIGINT UNSIGNED;
 	DECLARE uid BIGINT UNSIGNED;
-	DECLARE type enum('NORMAL', 'ADMIN', 'DURESS');
+	DECLARE ptype ENUM('LOGIN', 'ADMIN', 'DURESS');
 	DECLARE status enum('ACTIVE','LOCKED','DISABLED');
 	DECLARE found int;
 
-	SELECT u.id,u.status,s.type INTO uid,status,type 
+	SELECT u.id,u.status,s.type INTO uid,status,ptype 
 		FROM users u INNER JOIN shadow s 
 		ON u.id = s.uid
 		WHERE u.name=in_name
@@ -30,10 +30,10 @@ BEGIN
 			select count(id) from authCookies where id = token into found;
 		END WHILE;
 		INSERT INTO authCookies (id, userid, type, lifetime)
-			VALUES (token, uid, type, 3600);
-		SELECT true success,token,type;
+			VALUES (token, uid, ptype, 60);
+		SELECT true success,token token,ptype type;
 	ELSE
-		SELECT false success,type message;
+		SELECT false success,"Invalid Credentials!" message;
 	END IF;
 
 END$$

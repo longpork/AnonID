@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS `users` ;
 CREATE  TABLE IF NOT EXISTS `users` (
   `id` BIGINT(20) UNSIGNED NOT NULL ,
   `name` VARCHAR(96) NOT NULL ,
-  `status` ENUM('ACTIVE','DISABLED') NOT NULL ,
+  `status` ENUM('ACTIVE','LOCKED', 'DISABLED') NOT NULL ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) ,
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) )
@@ -148,7 +148,7 @@ DROP TABLE IF EXISTS `authCookies` ;
 
 CREATE  TABLE IF NOT EXISTS `authCookies` (
   `id` BIGINT(19) UNSIGNED NOT NULL ,
-  `type` ENUM('NORMAL', 'ADMIN', 'DURESS') NOT NULL ,
+  `type` ENUM('LOGIN', 'ADMIN', 'DURESS') NOT NULL ,
   `userid` BIGINT(20) UNSIGNED NOT NULL ,
   `created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(),
   `lifetime` INT NOT NULL DEFAULT 0,
@@ -172,7 +172,7 @@ CREATE  TABLE IF NOT EXISTS `shadow` (
   `uid` BIGINT(20) UNSIGNED NOT NULL ,
   `salt` CHAR(8) NOT NULL,
   `password` CHAR(41) NOT NULL ,
-  `type` ENUM('NORMAL', 'DURESS') NOT NULL ,
+  `type` ENUM('LOGIN', 'ADMIN', 'DURESS') NOT NULL ,
   INDEX `fk_shadow_1` (`uid` ASC) ,
   CONSTRAINT `fk_shadow_1`
     FOREIGN KEY (`uid` )
