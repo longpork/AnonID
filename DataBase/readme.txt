@@ -15,8 +15,14 @@ Design Considerations
 
 Function/Procedure Reference
 
-
-
+	Public Interface
+	
+	dblogin - process login; if successful, return authCookie token and token type
+	setPassword - user level password function. Requires a login type authCookie. 
+	
+	Internal Functions
+	
+	authCookieIsValid - return true if the cookie exists in the table and has not expired
 
 
 TODO
