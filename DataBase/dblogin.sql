@@ -31,9 +31,9 @@ BEGIN
 		END WHILE;
 		INSERT INTO authCookies (id, userid, type, lifetime)
 			VALUES (token, uid, ptype, 60);
-		SELECT true success,token token,ptype type;
+		SELECT true STATUS,token TOKEN,ptype TYPE;
 	ELSE
-		SELECT false success,"Invalid Credentials!" message;
+		SELECT false STATUS,"Invalid Credentials!" MESSAGE;
 	END IF;
 
 END$$
