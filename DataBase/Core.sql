@@ -181,3 +181,18 @@ CREATE  TABLE IF NOT EXISTS `shadow` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
+
+-- -----------------------------------------------------
+-- Table `globalFlags`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `globalFlags` ;
+
+CREATE  TABLE IF NOT EXISTS `globalFlags` (
+  `flag` VARCHAR(64) NOT NULL,
+  `value` BOOLEAN NOT NULL
+)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+INSERT INTO globalFlags (flag, value) VALUES ("RegOpen", true);
+
