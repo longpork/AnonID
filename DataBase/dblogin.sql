@@ -23,15 +23,15 @@ BEGIN
 		WHERE u.name=in_name
 		AND password=PASSWORD(CONCAT(s.salt, in_passwd));
 
-	IF (status = 'ACTIVE') THEN
+	IF (status = 'ACTIVE' AND ptype = 'LOGIN') THEN
 		set found = 1;
 		WHILE found > 0 DO
-			select (FLOOR(1 + (RAND() * 2147483646))) into token;
+			SET token=(FLOOR(1 + (RAND() * 9223372036854775807)));
 			select count(id) from authCookies where id = token into found;
 		END WHILE;
 		INSERT INTO authCookies (id, userid, type, lifetime)
 			VALUES (token, uid, ptype, 60);
-		SELECT true STATUS,token TOKEN,ptype TYPE;
+		SELECT true STATUS,token TOKEN;
 	ELSE
 		SELECT false STATUS,"Invalid Credentials!" MESSAGE;
 	END IF;

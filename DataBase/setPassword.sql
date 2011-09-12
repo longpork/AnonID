@@ -74,8 +74,9 @@ BEGIN
 		UPDATE shadow s
 			SET s.salt=newsalt,s.password = PASSWORD(CONCAT(newsalt, newpw))
 			WHERE s.uid=uid AND s.password = PASSWORD(CONCAT(s.salt, oldpw));
+			SELECT true STATUS;
 	ELSE
-		SELECT message as ERROR;
+		SELECT false STATUS, message ERROR;
 	END IF;
 END$$
 
