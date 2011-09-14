@@ -33,6 +33,7 @@ BEGIN
 			VALUES (token, uid, ptype, 60);
 		SELECT true STATUS,token TOKEN;
 	ELSE
+		/* XXX Should log this... especially if ptype = 'DURESS'  */
 		SELECT false STATUS,"Invalid Credentials!" MESSAGE;
 	END IF;
 
