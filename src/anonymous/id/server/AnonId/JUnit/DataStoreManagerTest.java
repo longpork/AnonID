@@ -7,27 +7,31 @@ import java.sql.DriverManager;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import anonymous.id.server.AnonId.DataStore;
+import anonymous.id.server.AnonId.DataStoreManager;
 
 import junit.framework.TestCase;
 
-public class DataStoreTest extends TestCase {
+public class DataStoreManagerTest extends TestCase {
 	// DB objects
 	private Connection dbCon;
-	private DataStore dStore;
+	private DataStoreManager dStore;
 	
 	// Test Strings
 	private static final String goodLoginPasswd = "testlogin";
 	private static final String goodDuressPasswd = "testduress";
 	private static final String goodAdminPasswd = "testadmin";
 	private static final String goodLoginName = "jtest";
+	private static final String newLogin = null;
+	private static final String newPasswd = null;
 		
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
 		
-		/* never point this at a production DB */
-		/* never create this user on a production DB */
+		/* NEVER point this at a production DB
+		 * NEVER create this user on a production DB
+		 * Would be nice to have a tool that could init the db...
+		 * then use that here */
 		String DB_CONN_STRING = "jdbc:mysql://localhost:3306/AnonID";
 		String DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 	    String USER_NAME = "junit";
@@ -35,7 +39,7 @@ public class DataStoreTest extends TestCase {
 	    
 	    Class.forName(DRIVER_CLASS_NAME).newInstance();
 	    dbCon  = DriverManager.getConnection(DB_CONN_STRING, USER_NAME, PASSWORD);
-	    dStore = new DataStore(DriverManager.getConnection(DB_CONN_STRING, USER_NAME, PASSWORD));
+	    dStore = new DataStoreManager(DriverManager.getConnection(DB_CONN_STRING, USER_NAME, PASSWORD));
 	}
 	
 	@Override
@@ -45,16 +49,12 @@ public class DataStoreTest extends TestCase {
 		dStore.close();
 	}
 	
-	public void testDSLogin() throws Exception {
-		fail();
-	}
-	
 	public void testSQLConnection() throws Exception {
 		assertTrue(dbCon.isValid(5));
 	}
 	
 	public void testSQLBadLogin() throws Exception {
-		PreparedStatement check = dbCon.prepareStatement(DataStore.sqlLogin);
+		PreparedStatement check = dbCon.prepareStatement(DataStoreManager.sqlLogin);
 		check.setNString(1, goodLoginName);
 		check.setNString(2, "FAIL!");
 		ResultSet rs = check.executeQuery();
@@ -121,20 +121,20 @@ public class DataStoreTest extends TestCase {
 	}
 	
 	public void logoutSQL(Long c) throws Exception {
-		PreparedStatement pslogin = dbCon.prepareStatement(DataStore.sqlLogout);
+		PreparedStatement pslogin = dbCon.prepareStatement(DataStoreManager.sqlLogout);
 		pslogin.setLong(1, c);
 		assertFalse(pslogin.execute());
 	}
 	
 	private ResultSet getSQLLoginResult(String name, String pw) throws Exception {
-		PreparedStatement pslogin = dbCon.prepareStatement(DataStore.sqlLogin);
+		PreparedStatement pslogin = dbCon.prepareStatement(DataStoreManager.sqlLogin);
 		pslogin.setNString(1, name);
 		pslogin.setNString(2, pw);
 		return pslogin.executeQuery();
 	}
 	
 	public ResultSet setSQLPasswordUser(long cookie, String oldpw, String newpw, String type) throws Exception {
-		PreparedStatement pschange = dbCon.prepareStatement(DataStore.sqlUserSetPassword);
+		PreparedStatement pschange = dbCon.prepareStatement(DataStoreManager.sqlUserSetPassword);
 		pschange.setLong(1, cookie);
 		pschange.setString(2, oldpw);
 		pschange.setString(3, newpw);
@@ -153,26 +153,60 @@ public class DataStoreTest extends TestCase {
 		rs.close();
 		
 		// Attempt change to same as duress
-		rs = setSQLPasswordUser(cookie, goodLoginPasswd, goodDuressPasswd, DataStore.PWTYPE_LOGIN);
+		rs = setSQLPasswordUser(cookie, goodLoginPasswd, goodDuressPasswd, DataStoreManager.PWTYPE_LOGIN);
 		assertNotNull(rs);
 		assertTrue(rs.next());
 		assertFalse(new Boolean(rs.getBoolean("STATUS")));
 		
 		// change the password
-		rs = setSQLPasswordUser(cookie, goodLoginPasswd, testPasswd, DataStore.PWTYPE_LOGIN);
+		rs = setSQLPasswordUser(cookie, goodLoginPasswd, testPasswd, DataStoreManager.PWTYPE_LOGIN);
 		assertNotNull(rs);
 		assertTrue(rs.next());
 		assertTrue(new Boolean(rs.getBoolean("STATUS")));
 		
 		// change back
-		rs = setSQLPasswordUser(cookie, testPasswd, goodLoginPasswd, DataStore.PWTYPE_LOGIN);
+		rs = setSQLPasswordUser(cookie, testPasswd, goodLoginPasswd, DataStoreManager.PWTYPE_LOGIN);
 		assertNotNull(rs);
 		assertTrue(rs.next());
 		assertTrue(new Boolean(rs.getBoolean("STATUS")));
 		
 	}
 	
-	public void testAdminCreateUser() throws Exception {
+	public void testSQLAdminCreateUser() throws Exception {
+		
+		// Login? again? this needs extracting!
+		ResultSet rs = getSQLLoginResult(goodLoginName, goodLoginPasswd);
+		assertNotNull(rs);
+		assertTrue(rs.next());
+		Long cookie = new Long(rs.getLong("TOKEN"));
+		assertFalse(rs.next());
+		rs.close();
+		
+		// Enable admin functions
+		rs = DataStoreManager.enableSQLAdmin(cookie, goodAdminPasswd);
+		assertNotNull(rs);
+		assertTrue(rs.next());
+		Long adminc = new Long(rs.getLong("TOKEN"));
+		assertFalse(rs.next());
+		rs.close();
+
+		// Create the user
+		rs = DataStoreManager.adminSQLCreateUser(cookie, adminc, newLogin, newPasswd);
+		assertNotNull(rs);
+		assertTrue(rs.next());
+		assertTrue(new Boolean(rs.getBoolean("STATUS")));
+		rs.close();
+		
+		// login as the new user
+		rs = getSQLLoginResult(newLogin, newPasswd);
+		assertNotNull(rs);
+		assertTrue(rs.next());
+		Long newcookie = new Long(rs.getLong("TOKEN"));
+		assertFalse(rs.next());
+		assertNotNull(newcookie);
+		rs.close();
 		
 	}
+	
+	
 }
