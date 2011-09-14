@@ -1,6 +1,7 @@
 package anonymous.id.server.AnonId;
 
 import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 
 /**
@@ -37,6 +38,17 @@ public class DataStoreManager {
 
 	public void close() throws SQLException {
 		sqlCon.close();
+	}
+
+	public static ResultSet enableSQLAdmin(Long cookie, String goodadminpasswd) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public static ResultSet adminSQLCreateUser(Long cookie, Long adminc,
+			String newlogin, String newpasswd) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

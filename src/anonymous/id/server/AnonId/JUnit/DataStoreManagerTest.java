@@ -21,6 +21,8 @@ public class DataStoreManagerTest extends TestCase {
 	private static final String goodDuressPasswd = "testduress";
 	private static final String goodAdminPasswd = "testadmin";
 	private static final String goodLoginName = "jtest";
+	private static final String newLogin = null;
+	private static final String newPasswd = null;
 		
 	@Override
 	protected void setUp() throws Exception {
@@ -181,7 +183,7 @@ public class DataStoreManagerTest extends TestCase {
 		rs.close();
 		
 		// Enable admin functions
-		ResultSet rs = DataStoreManager.enableSQLAdmin(cookie, goodAdminPasswd);
+		rs = DataStoreManager.enableSQLAdmin(cookie, goodAdminPasswd);
 		assertNotNull(rs);
 		assertTrue(rs.next());
 		Long adminc = new Long(rs.getLong("TOKEN"));
@@ -189,7 +191,21 @@ public class DataStoreManagerTest extends TestCase {
 		rs.close();
 
 		// Create the user
-		ResultSet rs = adminSQLCreateUser();
+		rs = DataStoreManager.adminSQLCreateUser(cookie, adminc, newLogin, newPasswd);
+		assertNotNull(rs);
+		assertTrue(rs.next());
+		assertTrue(new Boolean(rs.getBoolean("STATUS")));
+		rs.close();
+		
+		// login as the new user
+		rs = getSQLLoginResult(newLogin, newPasswd);
+		assertNotNull(rs);
+		assertTrue(rs.next());
+		Long newcookie = new Long(rs.getLong("TOKEN"));
+		assertFalse(rs.next());
+		assertNotNull(newcookie);
+		rs.close();
+		
 	}
 	
 	
