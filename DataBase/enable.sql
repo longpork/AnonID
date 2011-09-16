@@ -1,6 +1,7 @@
 -- -----------------------------------------------------
 -- procedure enable
--- 
+-- dblogin for elevated access. This just enables admin
+-- commands, it does not grant access to anything.
 -- -----------------------------------------------------
 
 USE `AnonID`;
@@ -12,10 +13,12 @@ IN ac BIGINT(20),
 IN passwd VARCHAR(255)
 )
 BEGIN
+	DECLARE token BIGINT UNSIGNED;
 	DECLARE uid BIGINT UNSIGNED;
 	DECLARE ptype ENUM('LOGIN', 'ADMIN', 'DURESS');
 	DECLARE status enum('ACTIVE','LOCKED','DISABLED');
-
+	DECLARE found int;
+	
 	IF (authCookieIsValid(ac)) THEN
 		SELECT u.id,u.status,s.type INTO uid,status,ptype 
 			FROM shadow s
@@ -23,12 +26,25 @@ BEGIN
 			auth ON auth.userid = s.id
 			WHERE password=PASSWORD(CONCAT(s.salt, passwd));
 		IF (FOUND_ROWS() = 0) THEN
-			SELECT false STATUS, "Invalid Credential!";
-		ELSE
-			-- XXX make a new auth cookie and return it!
-		END IF;		
-	ELSE
-		select false STATUS, "Invalid Cookie" MESSAGE;
+			-- XXX: Log!
+			SELECT false STATUS, "Invalid Credential!" MESSAGE;
+		ELSEIF (ptype = 'ADMIN') THEN
+			SET found = 1;
+			WHILE found > 0 DO
+					SET token=(FLOOR(1 + (RAND() * 9223372036854775807)));
+					select count(id) from authCookies where id = token into found;
+			END WHILE;
+			INSERT INTO authCookies (id, userid, type, lifetime)
+			VALUES (token, uid, ptype, 30);
+		ELSEIF (ptype = 'DURESS') THEN
+			-- XXX: LOG!
+			SELECT false STATUS, "Invalid Credential!" MESSAGE;
+		ELSEIF (ptype = 'DURESS') THEN
+			-- XXX: LOG!
+			SELECT false STATUS, "Invalid Credential!" MESSAGE;
+		END IF;	
+	ELSE 
+		SELECT false STATUS, "Invalid Cookie!" MESSAGE;
 	END IF;
 END $$
 
