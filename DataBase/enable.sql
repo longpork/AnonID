@@ -19,7 +19,7 @@ BEGIN
 	IF (authCookieIsValid(ac)) THEN
 		SELECT u.id,u.status,s.type INTO uid,status,ptype 
 			FROM shadow s
-			RIGHT JOIN ( SELECT * FROM authCookies WHERE id = ac )
+			JOIN ( SELECT * FROM authCookies WHERE id = ac )
 			auth ON auth.userid = s.id
 			WHERE password=PASSWORD(CONCAT(s.salt, passwd));
 		IF (FOUND_ROWS() = 0) THEN
