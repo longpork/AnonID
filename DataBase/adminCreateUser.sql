@@ -16,6 +16,7 @@ BEGIN
 	DECLARE token BIGINT UNSIGNED;
 	DECLARE userexists BOOLEAN;
 	DECLARE found int;
+	DECLARE salt CHAR(8);
 	
 	SELECT COUNT(*) INTO userexists FROM users u WHERE u.name = newname;
 	IF (userexists) THEN
@@ -27,6 +28,9 @@ BEGIN
 			SELECT count(id) FROM users WHERE id = token INTO found;
 		END WHILE;
 		INSERT INTO users (id, name, status) VALUES (token, newname, 'DISABLED');
+		SET salt = substring(MD5(RAND()), -8);
+		INSERT INTO shadow (uid, salt, password, type) 
+			VALUES (token, salt, PASSWORD(CONCAT(salt, newpasswd)), 'LOGIN');
 		SELECT true STATUS, token ID;
 	END IF;
 END $$
