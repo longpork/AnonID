@@ -70,11 +70,24 @@ public class DataStore {
 		pslogin.setLong(1, ac.getLogin());
 	}
 
-	public void enable(AuthCookie ac, String pass) throws SQLException {
+	public void enable(AuthCookie ac, String pass) throws SQLException, LoginException {
 		PreparedStatement ps = sqlCon.prepareStatement(sqlEnable);
 		ps.setLong(1, ac.getLogin());
 		ps.setString(2, pass);
 		ResultSet rs = makeSQLCall(ps);
+		// It must be valid
+		if (! rs.getBoolean(RESULT_STATUS)) {
+			throw new LoginException(rs.getString(RESULT_ERROR));
+		}
+		
+		long ec = rs.getLong("TOKEN");
+		
+		if (rs.wasNull()) {
+			// XXX log! if we got here this shouldn't be null
+			throw new SQLException(ERR_INTERNAL);
+		}
+		
+		ac.setAdmin(ec);
 	}
 
 	public void disable(AuthCookie ac) {

@@ -41,7 +41,7 @@ public class DataStoreTest extends TestCase {
 		dStore = new DataStore(DriverManager.getConnection(DB_CONN_STRING,
 				USER_NAME, PASSWORD));
 	}
-
+	
 	public void testLoginGood() throws Exception {
 		// Good Login
 		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);

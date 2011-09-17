@@ -37,7 +37,7 @@ BEGIN
 		SELECT false STATUS,"Invalid Credentials!" MESSAGE;
 	END IF;
 
-END$$
+END $$
 
 $$
 DELIMITER ;

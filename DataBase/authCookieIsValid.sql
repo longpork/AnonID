@@ -1,6 +1,7 @@
 -- -----------------------------------------------------
 -- function authCookieIsValid
 -- Checks the validity of an authCookie. 
+-- Does NOT check cookie type!
 -- Return
 --      0 - Cookie is expired or does not exist
 --      1 - Cookie exists and is still valid
