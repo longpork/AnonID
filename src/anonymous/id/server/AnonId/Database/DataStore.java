@@ -17,6 +17,9 @@ import com.sun.org.apache.xml.internal.utils.UnImplNode;
  *
  */
 public class DataStore {
+
+	private static final String RESULT_ID = "ID";
+
 	private Connection sqlCon;
 	
 	// SQL Strings
@@ -27,7 +30,9 @@ public class DataStore {
 	private static final String sqlValidateLogin = "call validateLogin(?, ?)";
 	private static final String sqlValidateEnabled = "call validateEnabled(?, ?)";
 	private static final String sqlCheckEnabled = "call checkEnabled(?, ?)";
+	private static final String sqlAdminCreateUser = "call adminCreateUser(?, ?, ?, ?)";
 
+	
 	private static final String RESULT_ERROR = "MESSAGE";
 	private static final String RESULT_STATUS = "STATUS";
 
@@ -95,9 +100,14 @@ public class DataStore {
 		
 	}
 
-	public void adminCreateUser(AuthCookie ac, String newlogin, String newpasswd) {
-		// TODO Auto-generated method stub
-		
+	public long adminCreateUser(AuthCookie ac, String newlogin, String newpasswd) throws SQLException {
+		PreparedStatement ps = sqlCon.prepareStatement(sqlAdminCreateUser);
+		ps.setLong(1, ac.getLogin());
+		ps.setLong(2, ac.getAdmin());
+		ps.setString(3, newlogin);
+		ps.setString(4, newpasswd);
+		ResultSet rs = makeSQLCall(ps);
+		return rs.getLong(RESULT_ID);
 	}
 
 	public boolean validate(AuthCookie ac) {

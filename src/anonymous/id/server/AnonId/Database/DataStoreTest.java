@@ -2,6 +2,7 @@ package anonymous.id.server.AnonId.Database;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 
 import javax.security.auth.login.LoginException;
 
@@ -38,8 +39,22 @@ public class DataStoreTest extends TestCase {
 
 		Class.forName(DRIVER_CLASS_NAME).newInstance();
 
-		dStore = new DataStore(DriverManager.getConnection(DB_CONN_STRING,
-				USER_NAME, PASSWORD));
+		sqlCon = DriverManager.getConnection(DB_CONN_STRING, USER_NAME, PASSWORD);
+		dStore = new DataStore(sqlCon);
+		
+
+		sqlCon.prepareStatement(
+				"insert into users (id, name, status) values (100, 'jtest', 'ACTIVE')").execute();
+		sqlCon.prepareStatement(
+				"insert into shadow (uid, salt, password, type) VALUES (100, 'j&^90yyy', PASSWORD('j&^90yyytestlogin'), 'LOGIN')"
+		).execute();
+		sqlCon.prepareStatement(
+			"insert into shadow (uid, salt, password, type) VALUES (100, 'jh&^9yyy', PASSWORD('jh&^9yyytestduress'), 'DURESS')"
+		).execute();
+		sqlCon.prepareStatement(
+			"insert into shadow (uid, salt, password, type) VALUES (100, 'jh&^90yy', PASSWORD('jh&^90yytestadmin'), 'ADMIN')"
+		).execute();
+		
 	}
 	
 	public void testLoginGood() throws Exception {
@@ -81,10 +96,24 @@ public class DataStoreTest extends TestCase {
 	
 	public void testAdminCreateUser() throws Exception {
 		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
-		dStore.enable(ac, goodAdminPasswd);
-		dStore.adminCreateUser(ac, newLogin, newPasswd);
+		dStore.enable(ac, goodAdminPasswd);		
+		long uid = dStore.adminCreateUser(ac, newLogin, newPasswd);
+		
+		// clean up!
+		PreparedStatement ps = sqlCon.prepareStatement("DELETE from users WHERE id = ?");
+		ps.setLong(1, uid);
+		ps.execute();
 		dStore.disable(ac);
 		dStore.logout(ac);
 	}
 
+	@Override
+	protected void tearDown() throws Exception {
+		super.tearDown();
+		// Quick and Dirty...remove all traces
+		sqlCon.prepareStatement("DELETE from authCookies WHERE userid = 100").execute();				
+		sqlCon.prepareStatement("DELETE from shadow WHERE uid = 100").execute();
+		sqlCon.prepareStatement("DELETE from users WHERE id = 100").execute();
+
+	}
 }
