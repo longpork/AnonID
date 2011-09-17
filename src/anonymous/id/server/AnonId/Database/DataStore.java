@@ -18,6 +18,8 @@ import com.sun.org.apache.xml.internal.utils.UnImplNode;
  */
 public class DataStore {
 
+	private static final String sqlActivateUser = "call adminActivateUser(?, ?, ?)";
+
 	private static final String RESULT_ID = "ID";
 
 	private Connection sqlCon;
@@ -160,6 +162,18 @@ public class DataStore {
 		// Set to the first row
 		rs.first();
 		return rs;
+	}
+
+	public void adminActivateUser(AuthCookie ac, long uid) throws SQLException, DataStoreException {
+		PreparedStatement ps = sqlCon.prepareStatement(sqlActivateUser);
+		ps.setLong(1, ac.getLogin());
+		ps.setLong(2, ac.getAdmin());
+		ps.setLong(3, uid);
+		ResultSet rs = makeSQLCall(ps);
+		
+		if (! rs.getBoolean(RESULT_STATUS)) {
+			throw new DataStoreException("Unable to activate user: " + rs.getString(RESULT_ERROR));
+		}
 	}
 	
 	
