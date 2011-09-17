@@ -12,6 +12,10 @@ public class DataStoreTest extends TestCase {
 	private Connection sqlCon;
 	private DataStore dStore;
 
+	// Stuff to clean up
+	Long newUid;
+	AuthCookie ac;
+	
 	// Test Constants
 	private static final String goodLoginPasswd = "testlogin";
 	private static final String goodDuressPasswd = "testduress";
@@ -59,8 +63,7 @@ public class DataStoreTest extends TestCase {
 	
 	public void testLoginGood() throws Exception {
 		// Good Login
-		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
-		dStore.logout(ac);
+		ac = dStore.login(goodLoginName, goodLoginPasswd);
 	}
 	
 	public void testLoginBad() throws Exception {
@@ -85,35 +88,46 @@ public class DataStoreTest extends TestCase {
 	
 	public void testEnable() throws Exception {
 		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
-		assertNotNull(ac);
 		assertFalse(ac.isEnabled());
 		dStore.enable(ac, goodAdminPasswd);
 		assertTrue(ac.isEnabled());
 		assertTrue(dStore.isEnabled(ac));
-		dStore.disable(ac);
-		dStore.logout(ac);
 	}
 	
 	public void testAdminCreateUser() throws Exception {
 		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
 		dStore.enable(ac, goodAdminPasswd);		
-		long uid = dStore.adminCreateUser(ac, newLogin, newPasswd);
 		
-		// clean up!
-		PreparedStatement ps = sqlCon.prepareStatement("DELETE from users WHERE id = ?");
-		ps.setLong(1, uid);
-		ps.execute();
-		dStore.disable(ac);
-		dStore.logout(ac);
+		// Create the User
+		newUid = new Long(dStore.adminCreateUser(ac, newLogin, newPasswd));
+		dStore.adminActivateUser(ac, newUid);
 	}
 
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+
+		// Clean up the new user
+		if (newUid != null) {
+			PreparedStatement ps = sqlCon.prepareStatement("DELETE from shadow WHERE uid = ?");
+			ps.setLong(1, newUid);
+			ps.execute();
+			ps = sqlCon.prepareStatement("DELETE from users WHERE id = ?");
+			ps.setLong(1, newUid);
+			ps.execute();
+		}
+
+		if (ac != null && ac.isEnabled()) {
+			dStore.disable(ac);			
+		}
+		
+		if (ac != null) {
+			dStore.logout(ac);			
+		}
+
 		// Quick and Dirty...remove all traces
 		sqlCon.prepareStatement("DELETE from authCookies WHERE userid = 100").execute();				
 		sqlCon.prepareStatement("DELETE from shadow WHERE uid = 100").execute();
-		sqlCon.prepareStatement("DELETE from users WHERE id = 100").execute();
-
+		sqlCon.prepareStatement("DELETE from users WHERE id = 100").execute();		
 	}
 }
