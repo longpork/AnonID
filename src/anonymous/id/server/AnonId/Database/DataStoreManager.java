@@ -65,4 +65,9 @@ public class DataStoreManager {
 		return null;
 	}
 
+	public void login(String goodloginname, String goodloginpasswd) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
