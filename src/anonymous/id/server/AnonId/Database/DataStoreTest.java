@@ -29,13 +29,14 @@ public class DataStoreTest extends TestCase {
 	@Override
 	protected void setUp() throws Exception {
 		super.setUp();
-
+		
 		/*
+		 * Make a database connection, and add a test user that can be used in tests.
+		 *
 		 * NEVER point this at a production DB NEVER create this user on a
-		 * production DB Would be nice to have a tool that could init the db...
-		 * then use that here ...a DataStoreManager
+		 * production DB Would be nice to have a tool that could init the DB...
+		 * then use that here ...a DataStoreManager maybe?
 		 */
-
 		String DB_CONN_STRING = "jdbc:mysql://localhost:3306/AnonID";
 		String DRIVER_CLASS_NAME = "com.mysql.jdbc.Driver";
 		String USER_NAME = "junit";
@@ -46,7 +47,7 @@ public class DataStoreTest extends TestCase {
 		sqlCon = DriverManager.getConnection(DB_CONN_STRING, USER_NAME, PASSWORD);
 		dStore = new DataStore(sqlCon);
 		
-
+		// XXX could cleanup and use string vars for readability
 		sqlCon.prepareStatement(
 				"insert into users (id, name, status) values (100, 'jtest', 'ACTIVE')").execute();
 		sqlCon.prepareStatement(
