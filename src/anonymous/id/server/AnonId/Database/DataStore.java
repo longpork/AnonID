@@ -10,8 +10,6 @@ import java.sql.SQLException;
 
 import javax.security.auth.login.LoginException;
 
-import com.sun.org.apache.xml.internal.utils.UnImplNode;
-
 /**
  * @author longpork
  *
@@ -32,8 +30,6 @@ public class DataStore {
 	private static final String sqlLogin             = "call dblogin(?, ?)";
 	private static final String sqlLogout            = "call dblogout(?)";
 	private static final String sqlUserSetPassword   = "call setPassword(?, ?, ?, ?)";
-	private static final String sqlValidateLogin     = "call validateLogin(?, ?)";
-	private static final String sqlValidateEnabled   = "call validateEnabled(?, ?)";
 	
 	private static final String RESULT_ERROR = "MESSAGE";
 	private static final String RESULT_STATUS = "STATUS";
@@ -150,7 +146,7 @@ public class DataStore {
 		}
 		
 		// Status can't be null either
-		Boolean ok = rs.getBoolean(RESULT_STATUS);
+		rs.getBoolean(RESULT_STATUS);
 		if (rs.wasNull()) {
 			// TODO log here too
 			throw new SQLException(ERR_INTERNAL);
