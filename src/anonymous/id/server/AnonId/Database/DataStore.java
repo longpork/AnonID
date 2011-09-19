@@ -18,24 +18,22 @@ import com.sun.org.apache.xml.internal.utils.UnImplNode;
  */
 public class DataStore {
 
-	private static final String sqlAdminLockUser = "CALL adminLockUser(?, ?, ?, ?)";
-
-	private static final String sqlAdminActivateUser = "call adminActivateUser(?, ?, ?)";
 
 	private static final String RESULT_ID = "ID";
 
 	private Connection sqlCon;
 	
 	// SQL Strings
-	private static final String sqlUserSetPassword = "call setPassword(?, ?, ?, ?)";
-	private static final String sqlLogin = "call dblogin(?, ?)";
-	private static final String sqlLogout = "call dblogout(?)";
-	private static final String sqlEnable = "call enable(?, ?)";
-	private static final String sqlValidateLogin = "call validateLogin(?, ?)";
-	private static final String sqlValidateEnabled = "call validateEnabled(?, ?)";
-	private static final String sqlCheckEnabled = "call checkEnabled(?, ?)";
-	private static final String sqlAdminCreateUser = "call adminCreateUser(?, ?, ?, ?)";
-
+	private static final String sqlAdminActivateUser = "call adminActivateUser(?, ?, ?)";
+	private static final String sqlAdminCreateUser   = "call adminCreateUser(?, ?, ?, ?)";
+	private static final String sqlCheckEnabled      = "call checkEnabled(?, ?)";
+	private static final String sqlEnable            = "call enable(?, ?)";
+	private static final String sqlAdminLockUser     = "CALL adminLockUser(?, ?, ?, ?)";
+	private static final String sqlLogin             = "call dblogin(?, ?)";
+	private static final String sqlLogout            = "call dblogout(?)";
+	private static final String sqlUserSetPassword   = "call setPassword(?, ?, ?, ?)";
+	private static final String sqlValidateLogin     = "call validateLogin(?, ?)";
+	private static final String sqlValidateEnabled   = "call validateEnabled(?, ?)";
 	
 	private static final String RESULT_ERROR = "MESSAGE";
 	private static final String RESULT_STATUS = "STATUS";
