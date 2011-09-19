@@ -134,13 +134,6 @@ public class DataStoreTest extends TestCase {
 		}
 		assertNull(lockac);
 	}
-
-	public void testAdminCreateGroup() throws Exception {
-		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
-		dStore.enable(ac, goodAdminPasswd);		
-
-		dStore.adminCreateGroup(ac, "JUnit Test Group");
-	}
 	
 	@Override
 	protected void tearDown() throws Exception {
