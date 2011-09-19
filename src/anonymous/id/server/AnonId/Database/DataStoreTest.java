@@ -3,6 +3,7 @@ package anonymous.id.server.AnonId.Database;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 import javax.security.auth.login.LoginException;
 
@@ -101,12 +102,54 @@ public class DataStoreTest extends TestCase {
 		
 		// Create the User
 		newUid = new Long(dStore.adminCreateUser(ac, newLogin, newPasswd));
-		dStore.adminActivateUser(ac, newUid);
+		dStore.adminActivateUser(ac, newLogin);
+		
+		// Login as the new User
+		AuthCookie testac = dStore.login(newLogin, newPasswd);
+		dStore.logout(testac);
+	}
+	
+	public void testAdminLockUser() throws SQLException, DataStoreException, LoginException {
+		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
+		dStore.enable(ac, goodAdminPasswd);		
+
+		// Create the User
+		newUid = new Long(dStore.adminCreateUser(ac, newLogin, newPasswd));
+		dStore.adminActivateUser(ac, newLogin);
+
+		// Login as the new User
+		AuthCookie testac = dStore.login(newLogin, newPasswd);
+		dStore.logout(testac);
+
+		// Lock the user
+		dStore.adminLockUser(ac, newLogin, "JUnit Testing: testAdminLockUser()");
+		AuthCookie lockac = null;
+		try {
+			lockac = dStore.login(newLogin, newPasswd);
+			fail("Login worked! Should be a locked account!");
+		} catch (LoginException e) {
+			assertTrue(true);
+		} catch (SQLException e) {
+			fail(e.getLocalizedMessage());
+		}
+		assertNull(lockac);
 	}
 
+	public void testAdminCreateGroup() throws Exception {
+		AuthCookie ac = dStore.login(goodLoginName, goodLoginPasswd);
+		dStore.enable(ac, goodAdminPasswd);		
+
+		dStore.adminCreateGroup(ac, "JUnit Test Group");
+	}
+	
 	@Override
 	protected void tearDown() throws Exception {
 		super.tearDown();
+
+		// Quick and Dirty cleanup
+		sqlCon.prepareStatement("DELETE from authCookies").execute();				
+		sqlCon.prepareStatement("DELETE from shadow WHERE uid = 100").execute();
+		sqlCon.prepareStatement("DELETE from users WHERE id = 100").execute();		
 
 		// Clean up the new user
 		if (newUid != null) {
@@ -117,18 +160,5 @@ public class DataStoreTest extends TestCase {
 			ps.setLong(1, newUid);
 			ps.execute();
 		}
-
-		if (ac != null && ac.isEnabled()) {
-			dStore.disable(ac);			
-		}
-		
-		if (ac != null) {
-			dStore.logout(ac);			
-		}
-
-		// Quick and Dirty...remove all traces
-		sqlCon.prepareStatement("DELETE from authCookies WHERE userid = 100").execute();				
-		sqlCon.prepareStatement("DELETE from shadow WHERE uid = 100").execute();
-		sqlCon.prepareStatement("DELETE from users WHERE id = 100").execute();		
 	}
 }

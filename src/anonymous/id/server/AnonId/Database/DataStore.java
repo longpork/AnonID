@@ -18,7 +18,9 @@ import com.sun.org.apache.xml.internal.utils.UnImplNode;
  */
 public class DataStore {
 
-	private static final String sqlActivateUser = "call adminActivateUser(?, ?, ?)";
+	private static final String sqlAdminLockUser = "CALL adminLockUser(?, ?, ?, ?)";
+
+	private static final String sqlAdminActivateUser = "call adminActivateUser(?, ?, ?)";
 
 	private static final String RESULT_ID = "ID";
 
@@ -164,11 +166,24 @@ public class DataStore {
 		return rs;
 	}
 
-	public void adminActivateUser(AuthCookie ac, long uid) throws SQLException, DataStoreException {
-		PreparedStatement ps = sqlCon.prepareStatement(sqlActivateUser);
+	public void adminActivateUser(AuthCookie ac, String uname) throws SQLException, DataStoreException {
+		PreparedStatement ps = sqlCon.prepareStatement(sqlAdminActivateUser);
 		ps.setLong(1, ac.getLogin());
 		ps.setLong(2, ac.getAdmin());
-		ps.setLong(3, uid);
+		ps.setString(3, uname);
+		ResultSet rs = makeSQLCall(ps);
+		
+		if (! rs.getBoolean(RESULT_STATUS)) {
+			throw new DataStoreException("Unable to activate user: " + rs.getString(RESULT_ERROR));
+		}
+	}
+
+	public void adminLockUser(AuthCookie ac, String uname, String comment) throws SQLException, DataStoreException {
+		PreparedStatement ps = sqlCon.prepareStatement(sqlAdminLockUser);
+		ps.setLong(1, ac.getLogin());
+		ps.setLong(2, ac.getAdmin());
+		ps.setString(3, uname);
+		ps.setString(4, comment);
 		ResultSet rs = makeSQLCall(ps);
 		
 		if (! rs.getBoolean(RESULT_STATUS)) {
