@@ -12,7 +12,7 @@ IN ec BIGINT(20),
 IN uname VARCHAR(96)
 )
 BEGIN
-	IF (authCookieIsEnabled()) THEN
+	IF (authCookieIsEnabled(lc, ec)) THEN
 		UPDATE users
 			SET status='ACTIVE'
 			WHERE name=uname AND status != 'LOCKED';

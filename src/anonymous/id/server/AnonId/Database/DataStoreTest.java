@@ -60,7 +60,6 @@ public class DataStoreTest extends TestCase {
 		sqlCon.prepareStatement(
 			"insert into shadow (uid, salt, password, type) VALUES (100, 'jh&^90yy', PASSWORD('jh&^90yytestadmin'), 'ADMIN')"
 		).execute();
-		
 	}
 	
 	public void testLoginGood() throws Exception {

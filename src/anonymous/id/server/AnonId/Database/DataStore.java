@@ -162,6 +162,9 @@ public class DataStore {
 
 	public void adminActivateUser(AuthCookie ac, String uname) throws SQLException, DataStoreException {
 		PreparedStatement ps = sqlCon.prepareStatement(sqlAdminActivateUser);
+		if (ac == null) {
+			throw new DataStoreException("Null Authcookie!");
+		}
 		ps.setLong(1, ac.getLogin());
 		ps.setLong(2, ac.getAdmin());
 		ps.setString(3, uname);
