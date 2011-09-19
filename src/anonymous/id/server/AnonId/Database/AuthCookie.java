@@ -3,6 +3,7 @@ package anonymous.id.server.AnonId.Database;
 import java.io.Serializable;
 
 public class AuthCookie implements Serializable {
+	private static final long serialVersionUID = 1L;
 	private Long login;
 	private Long admin;
 	private boolean duress;
