@@ -108,16 +108,6 @@ public class DataStore {
 		return rs.getLong(RESULT_ID);
 	}
 
-	public boolean validate(AuthCookie ac) {
-
-		return false;
-	}
-
-	public boolean isValidLogin(AuthCookie ac) {
-		
-		return false;
-	}
-
 	public boolean isEnabled(AuthCookie ac) throws SQLException {
 		PreparedStatement ps = sqlCon.prepareStatement(sqlCheckEnabled);
 		// XXX Nothing to validate? Really? Should this throw?
