@@ -113,6 +113,7 @@ public class DataStore {
 			if (! rs.getBoolean(RESULT_STATUS)) {
 				throw new DataStoreException(rs.getString(RESULT_ERROR));
 			}
+			ac.setAdmin(null);
 		} else if (ac == null) {
 			throw new NullPointerException();
 		} 
