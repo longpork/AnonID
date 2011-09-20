@@ -1,0 +1,34 @@
+#!/usr/bin/expect --
+
+set prompt "(%|\\\$|#|>) "
+
+proc send_file {user host pass database file} {
+	set prompt "(%|\\\$|#|>) "
+	send "mysql -h $host -u $user -p $database < $file\n"
+	expect "assword"
+	send "$pass\n"
+	expect -re $prompt
+}
+
+# xxx: should be able to select host/db/username
+# Get password
+stty -echo
+send_user "Password:"
+expect_user -re "(.*)\n"
+send_user "\n"
+set password $expect_out(1,string)
+stty echo
+
+spawn /bin/sh
+
+send_file "root" "localhost"  $password  "AnonID"  "Core.sql"
+send_file "root" "localhost"  $password  "AnonID"  "dblogin.sql"
+send_file "root" "localhost"  $password  "AnonID"  "enable.sql"
+send_file "root" "localhost"  $password  "AnonID"  "authCookieIsValid.sql"
+send_file "root" "localhost"  $password  "AnonID"  "checkEnabled.sql"
+send_file "root" "localhost"  $password  "AnonID"  "authCookieIsEnabled.sql"
+send_file "root" "localhost"  $password  "AnonID"  "adminCreateUser.sql"
+send_file "root" "localhost"  $password  "AnonID"  "adminActivateUser.sql"
+send_file "root" "localhost"  $password  "AnonID"  "disable.sql"
+send_file "root" "localhost"  $password  "AnonID"  "dblogout.sql"
+send_file "root" "localhost"  $password  "AnonID"  "adminLockUser.sql"
