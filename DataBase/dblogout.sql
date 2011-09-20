@@ -7,10 +7,18 @@ DROP procedure IF EXISTS `dblogout`;
 DELIMITER $$
 USE `AnonID`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `dblogout`(
-IN cookie BIGINT(20)
+IN lc BIGINT(20)
 )
 BEGIN
-	DELETE FROM authCookies WHERE id=cookie;
+	DECLARE rcount INT;
+	DELETE FROM authCookies WHERE id=lc;
+	
+	SET rcount = ROW_COUNT();
+	if (rcount < 1) THEN
+		SELECT false STATUS, "Login cookie not found!" MESSAGE;
+	ELSEIF (rcount = 1) THEN
+		SELECT true STATUS;
+	END IF;
 END $$
 
 $$
