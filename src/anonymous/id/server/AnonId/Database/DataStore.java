@@ -20,11 +20,13 @@ public class DataStore {
 	private static final String RESULT_ID = "ID";
 
 	private Connection sqlCon;
+
 	
 	// SQL Strings
 	private static final String sqlAdminActivateUser = "call adminActivateUser(?, ?, ?)";
 	private static final String sqlAdminCreateUser   = "call adminCreateUser(?, ?, ?, ?)";
 	private static final String sqlCheckEnabled      = "call checkEnabled(?, ?)";
+	private static final String sqlDisable           = "call disable(?, ?)";
 	private static final String sqlEnable            = "call enable(?, ?)";
 	private static final String sqlAdminLockUser     = "CALL adminLockUser(?, ?, ?, ?)";
 	private static final String sqlLogin             = "call dblogin(?, ?)";
@@ -65,12 +67,21 @@ public class DataStore {
 		return new AuthCookie(lc, null, false);
 	}
 
-	public void logout(AuthCookie ac) throws SQLException {
-		PreparedStatement pslogin = sqlCon.prepareStatement(sqlLogout);
-		if (ac.isEnabled()) {
+	public void logout(AuthCookie ac) throws SQLException, DataStoreException {
+		if (ac == null) {
+			throw new NullPointerException();
+		} else if (ac.isEnabled()) {
 			this.disable(ac);
 		}
+		// Now disable the login cookie
+		PreparedStatement pslogin = sqlCon.prepareStatement(sqlLogout);
 		pslogin.setLong(1, ac.getLogin());
+		pslogin.setLong(1, ac.getAdmin());
+
+		ResultSet rs =  makeSQLCall(pslogin);
+		if (! rs.getBoolean(RESULT_STATUS)) {
+			throw new DataStoreException(rs.getString(RESULT_ERROR));
+		}
 	}
 
 	public void enable(AuthCookie ac, String pass) throws SQLException, LoginException {
@@ -93,9 +104,18 @@ public class DataStore {
 		ac.setAdmin(ec);
 	}
 
-	public void disable(AuthCookie ac) {
-		// TODO Auto-generated method stub
-		
+	public void disable(AuthCookie ac) throws DataStoreException, SQLException {
+		if (ac != null && ac.isEnabled()) {
+			PreparedStatement ps = sqlCon.prepareStatement(sqlDisable);
+			ps.setLong(1, ac.getLogin());
+			ps.setLong(2, ac.getAdmin());
+			ResultSet rs = makeSQLCall(ps);
+			if (! rs.getBoolean(RESULT_STATUS)) {
+				throw new DataStoreException(rs.getString(RESULT_ERROR));
+			}
+		} else if (ac == null) {
+			throw new NullPointerException();
+		} 
 	}
 
 	public long adminCreateUser(AuthCookie ac, String newlogin, String newpasswd) throws SQLException {
