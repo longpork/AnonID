@@ -183,16 +183,18 @@ ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
 -- -----------------------------------------------------
--- Table `globalFlags`
+-- Table `globalConfig`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `globalFlags` ;
+DROP TABLE IF EXISTS `globalConfig` ;
 
-CREATE  TABLE IF NOT EXISTS `globalFlags` (
-  `flag` VARCHAR(64) NOT NULL,
-  `value` BOOLEAN NOT NULL
+CREATE  TABLE IF NOT EXISTS `globalConfig` (
+  `name` VARCHAR(64) NOT NULL,
+  `enabled` BOOLEAN NOT NULL,
+  `value` BIGINT(20) NOT NULL,
+  `comment` TEXT
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-INSERT INTO globalFlags (flag, value) VALUES ("RegOpen", true);
+INSERT INTO globalConfig (flag, value) VALUES ("RegOpen", true);
 

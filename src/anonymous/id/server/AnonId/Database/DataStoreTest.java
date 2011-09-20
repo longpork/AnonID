@@ -93,6 +93,9 @@ public class DataStoreTest extends TestCase {
 		dStore.enable(ac, goodAdminPasswd);
 		assertTrue(ac.isEnabled());
 		assertTrue(dStore.isEnabled(ac));
+		dStore.disable(ac);
+		assertFalse(ac.isEnabled());
+		assertFalse(dStore.isEnabled(ac));
 	}
 	
 	public void testAdminCreateUser() throws Exception {
