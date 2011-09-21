@@ -76,7 +76,6 @@ public class DataStore {
 		// Now disable the login cookie
 		PreparedStatement pslogin = sqlCon.prepareStatement(sqlLogout);
 		pslogin.setLong(1, ac.getLogin());
-		pslogin.setLong(1, ac.getAdmin());
 
 		ResultSet rs =  makeSQLCall(pslogin);
 		if (! rs.getBoolean(RESULT_STATUS)) {

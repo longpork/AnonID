@@ -20,6 +20,8 @@ BEGIN
 		SELECT true STATUS;
 	ELSEIF (updated < 1) THEN
 		SELECT false STATUS, "Invalid AuthCookie" MESSAGE;
+	ELSE
+		SELECT false STATUS, "ROW_COUNT > 1 !" MESSAGE;
 	END IF;
 END $$
 
