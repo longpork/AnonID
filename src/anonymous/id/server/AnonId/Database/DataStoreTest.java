@@ -49,17 +49,36 @@ public class DataStoreTest extends TestCase {
 		dStore = new DataStore(sqlCon);
 		
 		// XXX could cleanup and use string vars for readability
+		sqlInsertUser(100, goodLoginName, true);
+		sqlSetPassword(100, "j&^90yyy", goodLoginPasswd, "LOGIN");
+		sqlSetPassword(100, "j*^96yhy", goodAdminPasswd, "ADMIN");
+		sqlSetPassword(100, "g&^59yjy", goodDuressPasswd, "DURESS");
+
 		sqlCon.prepareStatement(
-				"insert into users (id, name, status) values (100, 'jtest', 'ACTIVE')").execute();
-		sqlCon.prepareStatement(
-				"insert into shadow (uid, salt, password, type) VALUES (100, 'j&^90yyy', PASSWORD('j&^90yyytestlogin'), 'LOGIN')"
-		).execute();
-		sqlCon.prepareStatement(
-			"insert into shadow (uid, salt, password, type) VALUES (100, 'jh&^9yyy', PASSWORD('jh&^9yyytestduress'), 'DURESS')"
-		).execute();
-		sqlCon.prepareStatement(
-			"insert into shadow (uid, salt, password, type) VALUES (100, 'jh&^90yy', PASSWORD('jh&^90yytestadmin'), 'ADMIN')"
-		).execute();
+				"insert into globalConfig (name, enabled, value, comment) values ('RegOpen', true, NULL, 'JUNit Test')").execute();
+
+	}
+
+	private void sqlSetPassword(int id, String salt, String pass, String type) throws SQLException {
+		PreparedStatement ps = sqlCon.prepareStatement(
+				"insert into shadow (uid, salt, password, type) VALUES (?, ?, PASSWORD(CONCAT(?,?)), ?)"
+		);
+		ps.setLong(1, id);
+		ps.setString(2, salt);
+		ps.setString(3, salt);
+		ps.setString(4, pass);
+		ps.setString(5, type);
+		ps.execute();
+	}
+
+	private void sqlInsertUser(long id, String name, boolean admin) throws SQLException {
+		PreparedStatement ps = sqlCon.prepareStatement(
+				"insert into users (id, name, status, isAdmin) values (?, ?, 'ACTIVE', ?)");
+		ps.setLong(1, id);
+		ps.setString(2, name);
+		ps.setBoolean(3, admin);
+		ps.execute();
+
 	}
 	
 	public void testLoginGood() throws Exception {
@@ -155,5 +174,6 @@ public class DataStoreTest extends TestCase {
 			ps.setLong(1, newUid);
 			ps.execute();
 		}
+
 	}
 }

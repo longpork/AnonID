@@ -15,6 +15,7 @@ CREATE  TABLE IF NOT EXISTS `users` (
   `id` BIGINT(20) UNSIGNED NOT NULL ,
   `name` VARCHAR(96) NOT NULL ,
   `status` ENUM('ACTIVE','LOCKED', 'DISABLED') NOT NULL ,
+  `isAdmin` BOOLEAN NOT NULL DEFAULT false ,
   PRIMARY KEY (`id`) ,
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) ,
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) )
@@ -173,6 +174,7 @@ CREATE  TABLE IF NOT EXISTS `shadow` (
   `salt` CHAR(8) NOT NULL,
   `password` CHAR(41) NOT NULL ,
   `type` ENUM('LOGIN', 'ADMIN', 'DURESS') NOT NULL ,
+  `changed` TIMESTAMP NULL DEFAULT NULL,
   INDEX `fk_shadow_1` (`uid` ASC) ,
   CONSTRAINT `fk_shadow_1`
     FOREIGN KEY (`uid` )
@@ -190,11 +192,10 @@ DROP TABLE IF EXISTS `globalConfig` ;
 CREATE  TABLE IF NOT EXISTS `globalConfig` (
   `name` VARCHAR(64) NOT NULL,
   `enabled` BOOLEAN NOT NULL,
-  `value` BIGINT(20) NOT NULL,
+  `value` BIGINT(20),
   `comment` TEXT
 )
 ENGINE = InnoDB
 DEFAULT CHARACTER SET = latin1;
 
-INSERT INTO globalConfig (flag, value) VALUES ("RegOpen", true);
 
