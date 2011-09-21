@@ -48,15 +48,24 @@ public class DataStoreTest extends TestCase {
 		sqlCon = DriverManager.getConnection(DB_CONN_STRING, USER_NAME, PASSWORD);
 		dStore = new DataStore(sqlCon);
 		
-		// XXX could cleanup and use string vars for readability
+		// Create a test admin user that tests can use 
 		sqlInsertUser(100, goodLoginName, true);
 		sqlSetPassword(100, "j&^90yyy", goodLoginPasswd, "LOGIN");
 		sqlSetPassword(100, "j*^96yhy", goodAdminPasswd, "ADMIN");
 		sqlSetPassword(100, "g&^59yjy", goodDuressPasswd, "DURESS");
 
-		sqlCon.prepareStatement(
-				"insert into globalConfig (name, enabled, value, comment) values ('RegOpen', true, NULL, 'JUNit Test')").execute();
+		setGlobalConfig("RegOpen", true, 0);
+		
+	}
 
+	private void setGlobalConfig(String name, boolean en, int val) throws SQLException {
+		PreparedStatement ps = sqlCon.prepareStatement(
+				"insert into globalConfig (name, enabled, value, comment) values (?, ?, ?, ?)");
+		ps.setString(1, "");
+		ps.setBoolean(2, true);
+		ps.setLong(3, 0);
+		ps.setString(4, "JUNIT TESTING");
+		ps.execute();
 	}
 
 	private void sqlSetPassword(int id, String salt, String pass, String type) throws SQLException {
@@ -78,7 +87,6 @@ public class DataStoreTest extends TestCase {
 		ps.setString(2, name);
 		ps.setBoolean(3, admin);
 		ps.execute();
-
 	}
 	
 	public void testLoginGood() throws Exception {
